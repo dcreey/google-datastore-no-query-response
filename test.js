@@ -5,7 +5,7 @@ const assert = require('assert');
 
 const streamId = 'stream-' + Math.floor(100000000 * Math.random());
 
-describe('When a scan operation is limited', function() {
+describe('When querying for records', function() {
     let googleDataStore;
     const recordsToInsert = 5;
     const artifacts = [];
@@ -39,17 +39,17 @@ describe('When a scan operation is limited', function() {
         }).then(() => done())
     });
 
-    it('scans all records when limit is higher', () => {
+    it('successfully returns all inserted records', () => {
         const scannedRecords = [];
-        const dataCallback = (record) => {
-            console.log('SCANNED', record)
-            scannedRecords.push(record);
+        const dataCallback = (recordKey) => {
+            console.log('SCANNED', recordKey);
+            scannedRecords.push(recordKey);
         };
 
-        console.log('SCAN ALL')
+        console.log('SCAN ALL');
 
         return googleDataStore.query({streamId: streamId}, {dataCallback}).then(() => {
-            console.log('CHECK ALL')
+            console.log(`CHECK ALL - scanned records ${scannedRecords.length}, artifacts ${artifacts.length}`)
 
             assert(scannedRecords.length === artifacts.length);
         });
