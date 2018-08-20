@@ -27,6 +27,12 @@ class GoogleDataStore{
     query(filter, {limit, dataCallback}) {
         let query = this._datastore.createQuery(this._namespace, this._dataStoreName);
 
+        const parentKey = this._datastore.key({
+            namespace: this._namespace,
+            path: ['Artifacts', 'Artifact']
+        });
+        query = query.hasAncestor(parentKey);
+
         query = query.limit(limit || defaultQueryLimit);
 
         _.forEach(filter, (valueOrCondition, key) => {
@@ -34,7 +40,7 @@ class GoogleDataStore{
         });
 
         return new Promise((resolve, reject) => {
-            return query.runStream()
+            return query.runStream({ consistency: 'strong' })
                 .on('error', reject)
                 .on('data', (entity) => {
                     const key = entity[this._datastore.KEY];
@@ -53,7 +59,7 @@ class GoogleDataStore{
 function buildKey(key) {
     return this._datastore.key({
         namespace: this._namespace,
-        path: [this._dataStoreName, key]
+        path: ['Artifacts', 'Artifact', this._dataStoreName, key]
     });
 }
 
